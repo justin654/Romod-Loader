@@ -82,7 +82,7 @@ internal static class LiveMapEditorHost
         _active = true;
         _mode = LiveEditorMode.Objects;
         EnsureCheatsEnabled(log);
-        SetStatus("Object editor ON. Left click select, right click delete, Interact clone, Place move, F9 tile editor, Tab/Esc exits.", log);
+        SetStatus("Object editor ON. Left click select, right click delete, Interact clone, Place move. F9: tile mode. F8/Tab/Esc: exit.", log);
     }
 
     internal static void ToggleTileEditor(IModLogger? log)
@@ -97,7 +97,7 @@ internal static class LiveMapEditorHost
         _mode = LiveEditorMode.Tiles;
         ClearHighlights();
         EnsureCheatsEnabled(log);
-        SetStatus("Tile editor ON. Left click samples brush area, hold right click paints, hold Interact paints ground, Delete clears structure.", log);
+        SetStatus("Tile editor ON. Left click samples brush area, hold right click paints, hold Interact paints ground, Delete clears structure. F9: exit tile mode. F8/Tab/Esc: exit editor.", log);
     }
 
     internal static void DisableWorldEditor(IModLogger? log)
