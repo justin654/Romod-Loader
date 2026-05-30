@@ -1,0 +1,14 @@
+<Project>
+  <!--
+    Copy this file to Workspace.local.props and set paths for your machine.
+    Workspace.local.props is gitignored.
+
+    Alternatively, set environment variables (see Directory.Build.props):
+      ROMESTEAD_GAME_ROOT
+      ROMESTEAD_SERVER_ROOT
+  -->
+  <PropertyGroup>
+    <RomesteadGameRoot>C:\Path\To\Your\Romestead\Game</RomesteadGameRoot>
+    <RomesteadServerRoot>C:\Path\To\Your\Romestead\DedicatedServer</RomesteadServerRoot>
+  </PropertyGroup>
+</Project>

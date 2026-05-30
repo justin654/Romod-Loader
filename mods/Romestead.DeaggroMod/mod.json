@@ -1,0 +1,12 @@
+{
+  "id": "romestead.deaggro",
+  "name": "Romestead Deaggro Mod",
+  "version": "0.1.0",
+  "syncMode": "ServerOnly",
+  "author": "Romestead Modding Workspace",
+  "description": "Enemies drop aggro after you move about 20 tiles away and no longer chain through nearby allies.",
+  "homepage": "",
+  "dependencies": [
+    "romestead.modloader.core"
+  ]
+}

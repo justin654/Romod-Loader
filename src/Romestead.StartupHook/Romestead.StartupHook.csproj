@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
+    <NoWarn>$(NoWarn);CA1416;CA2252</NoWarn>
+    <RequiresRomesteadGameRoot>true</RequiresRomesteadGameRoot>
+    <!-- Required so Tomlyn.dll (transitive dep of Romestead.RomodFormat) lands next to
+         Romestead.StartupHook.dll. The installer copies all *.dll from this folder into
+         the game root; .romod loading will silently no-op if Tomlyn isn't shipped. -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Lib.Harmony" Version="2.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Romestead.RomodFormat\Romestead.RomodFormat.csproj" />
+    <!-- Reference the mod-facing contract as a real assembly (was previously linked
+         in as source). Romestead.ModLoader.Abstractions.dll ships alongside the
+         StartupHook and is registered in deps.json by the installer, so the loader,
+         ClientCore, and every mod bind to ONE shared assembly identity at runtime. -->
+    <ProjectReference Include="..\Romestead.ModLoader.Abstractions\Romestead.ModLoader.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="CandideCreator.Shared">
+      <HintPath>$(CandideCreatorSharedDllPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="CandideServer">
+      <HintPath>$(CandideServerDllPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Shared">
+      <HintPath>$(SharedDllPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>$(MonoGameFrameworkDllPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

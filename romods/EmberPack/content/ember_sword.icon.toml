@@ -1,0 +1,5 @@
+id = "icon:emberpack:ember_sword"
+texture = "assets/icons/ember_sword.png"
+spriteWidth = 32
+spriteHeight = 32
+replaceExisting = false

@@ -1,0 +1,12 @@
+{
+  "id": "romestead.skip-intro",
+  "name": "Romestead Skip Intro Mod",
+  "version": "0.1.0",
+  "syncMode": "ClientOnly",
+  "author": "Romestead Modding Workspace",
+  "description": "Skips the startup intro sequence and goes straight to the main menu.",
+  "homepage": "",
+  "dependencies": [
+    "romestead.modloader.core"
+  ]
+}

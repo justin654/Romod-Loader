@@ -1,0 +1,23 @@
+<Project>
+  <Import Project="Workspace.local.props" Condition="Exists('Workspace.local.props')" />
+
+  <PropertyGroup>
+    <RomesteadGameRoot Condition="'$(RomesteadGameRoot)' == '' and '$(ROMESTEAD_GAME_ROOT)' != ''">$(ROMESTEAD_GAME_ROOT)</RomesteadGameRoot>
+    <RomesteadServerRoot Condition="'$(RomesteadServerRoot)' == '' and '$(ROMESTEAD_SERVER_ROOT)' != ''">$(ROMESTEAD_SERVER_ROOT)</RomesteadServerRoot>
+
+    <RomesteadGameRoot Condition="'$(RomesteadGameRoot)' == ''">C:\Program Files (x86)\Steam\steamapps\common\romestead</RomesteadGameRoot>
+    <RomesteadServerRoot Condition="'$(RomesteadServerRoot)' == ''">C:\Program Files (x86)\Steam\steamapps\common\romestead-server</RomesteadServerRoot>
+
+    <RomesteadDllPath>$(RomesteadGameRoot)\Romestead.dll</RomesteadDllPath>
+    <SharedDllPath>$(RomesteadGameRoot)\Shared.dll</SharedDllPath>
+    <CandideCreatorSharedDllPath>$(RomesteadGameRoot)\CandideCreator.Shared.dll</CandideCreatorSharedDllPath>
+    <CandideServerDllPath>$(RomesteadGameRoot)\CandideServer.dll</CandideServerDllPath>
+    <MonoGameFrameworkDllPath>$(RomesteadGameRoot)\MonoGame.Framework.dll</MonoGameFrameworkDllPath>
+    <FontStashSharpBaseDllPath>$(RomesteadGameRoot)\FontStashSharp.Base.dll</FontStashSharpBaseDllPath>
+    <FontStashSharpMonoGameDllPath>$(RomesteadGameRoot)\FontStashSharp.MonoGame.dll</FontStashSharpMonoGameDllPath>
+  </PropertyGroup>
+
+  <Target Name="ValidateRomesteadGameRoot" BeforeTargets="ResolveReferences" Condition="'$(RequiresRomesteadGameRoot)' == 'true'">
+    <Error Condition="!Exists('$(RomesteadGameRoot)')" Text="RomesteadGameRoot does not exist: '$(RomesteadGameRoot)'. Update Workspace.local.props or set ROMESTEAD_GAME_ROOT." />
+  </Target>
+</Project>

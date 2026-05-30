@@ -1,0 +1,12 @@
+{
+  "id": "romestead.icon-dump",
+  "name": "Romestead Icon Dump Mod",
+  "version": "0.1.0",
+  "syncMode": "ClientOnly",
+  "author": "Romestead Modding Workspace",
+  "description": "Developer tool: exports every item icon to PNG so the Mod Value Editor can preview real in-game icons. Runs once on game-ready.",
+  "homepage": "",
+  "dependencies": [
+    "romestead.modloader.core"
+  ]
+}

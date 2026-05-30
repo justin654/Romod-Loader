@@ -1,0 +1,4 @@
+id = "justin.calmbeasts:faster-decay"
+type = "ThreatDecayMultiplier"
+value = 2
+applyToBosses = false

@@ -1,0 +1,8 @@
+id = "justin.emberpack"
+name = "Ember Pack"
+version = "0.1.0"
+schemaVersion = 1
+syncMode = "RequiredOnClient"
+author = "Justin"
+description = "Adds an ember-themed sword, its recipe, and a custom icon. Sample .romod package."
+homepage = ""

@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>Romestead.RomodFormat</RootNamespace>
+    <AssemblyName>Romestead.RomodFormat</AssemblyName>
+    <!--
+      Intentionally references ONLY Tomlyn. No game DLLs, no Romestead.ModLoader.Abstractions.
+      Abstractions types are source-included into Romestead.StartupHook.dll (and into each user
+      mod), so referencing the Abstractions csproj here would create a second copy of those
+      types and break type identity at runtime. The mapper from RomodFormat models to
+      Abstractions definitions therefore lives in Romestead.StartupHook (see RomodIntegration/).
+      This same assembly is reused by the CLI packer Romestead.ModLoader.RomodTool, which runs
+      on machines that may have no game install at all.
+    -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Tomlyn" Version="0.17.0" />
+  </ItemGroup>
+</Project>

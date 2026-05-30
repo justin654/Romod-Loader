@@ -1,0 +1,4 @@
+id = "justin.calmbeasts:max-leash"
+type = "MaxLossRadiusTiles"
+value = 20
+applyToBosses = false

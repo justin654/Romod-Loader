@@ -1,0 +1,54 @@
+# Build outputs
+artifacts/
+**/bin/
+**/obj/
+**/out/
+
+# Local machine paths (copy Workspace.local.props.example)
+Workspace.local.props
+
+# User-specific / IDE
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.idea/
+*.DotSettings.user
+
+# Test / coverage
+TestResults/
+*.trx
+coverage/
+*.coverage
+*.coveragexml
+
+# NuGet
+*.nupkg
+**/packages/
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Logs / diagnostics
+*.log
+artifacts/diag/
+
+# Optional API catalog tool output (when mod_probe is present)
+mod_probe/output/
+
+# Secrets (defensive)
+*.pfx
+*.snk
+secrets.json
+.env
+.env.*
+
+# Third-party tool binaries (xnbcli) — install locally via tools/install-xnbcli.ps1.
+# README.txt and the .bat wrappers stay tracked; the binaries do not.
+tools/xnbcli/xnbcli.exe
+tools/xnbcli/*.node
+tools/xnbcli/packed/
+tools/xnbcli/unpacked/

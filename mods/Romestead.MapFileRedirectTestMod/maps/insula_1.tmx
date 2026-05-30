@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="1">
+ <tileset firstgid="1" source="../../../tilesets/world_tile_ground.tsx"/>
+ <imagelayer id="2" name="Image Layer 1" offsetx="2.5" offsety="3">
+  <image source="../../media/map_backgrounds/buildings/insula1.png" width="480" height="480"/>
+ </imagelayer>
+ <layer id="3" name="Tile Layer 1" width="30" height="30">
+  <data encoding="base64" compression="zlib">
+   eJztk8EJACAMAx2im7j/br4EKY34SYqQg4D04dmqY/QyQTqc7HOceyIX06vsNXsjrXcYVJ5cYxAgSm++U4W3mrfKi2bO8t56Zb9n9f99dRtjjDHmbxb1rBIv
+  </data>
+ </layer>
+</map>

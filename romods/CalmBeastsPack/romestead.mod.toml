@@ -1,0 +1,8 @@
+id = "justin.calmbeasts"
+name = "Calm Beasts"
+version = "0.1.0"
+schemaVersion = 1
+syncMode = "ClientOnly"
+author = "Justin"
+description = "Sample .romod package: shortens enemy leash range and speeds threat decay via aggro tuning."
+homepage = ""

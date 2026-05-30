@@ -1,0 +1,28 @@
+id = "weapon:mod:emberpack:ember_sword"
+name = "Ember Sword"
+description = "A blade smelted in volcanic resin. Burns what it cuts."
+icon = "icon:emberpack:ember_sword"
+maxStackSize = 1
+tier = 3
+
+[equipment]
+slot = "Weapon"
+material = "Iron"
+displayId = "cdd:iron_sword"
+
+[equipment.weapon]
+class = "Sword"
+swingTimer = 0.45
+baseAttackRange = 26
+baseKnockback = 60
+stunPower = 0.25
+
+[[equipment.weapon.damage]]
+type = "Slashing"
+min = 14
+max = 16
+
+[[equipment.weapon.damage]]
+type = "Pyro"
+min = 3
+max = 6

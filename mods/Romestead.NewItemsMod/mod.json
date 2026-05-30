@@ -1,0 +1,12 @@
+{
+  "id": "romestead.new-items",
+  "name": "Romestead New Items Mod",
+  "version": "0.1.0",
+  "syncMode": "RequiredOnClient",
+  "author": "Romestead Modding Workspace",
+  "description": "Sample content mod that adds Ember Resin and a campfire recipe.",
+  "homepage": "",
+  "dependencies": [
+    "romestead.modloader.core"
+  ]
+}

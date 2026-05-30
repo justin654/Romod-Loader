@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <NoWarn>$(NoWarn);CA1416;CA2252</NoWarn>
+    <RootNamespace>Romestead.ModLoader.ClientCore</RootNamespace>
+    <AssemblyName>Romestead.ModLoader.ClientCore</AssemblyName>
+    <RequiresRomesteadGameRoot>true</RequiresRomesteadGameRoot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Romestead.StartupHook\Romestead.StartupHook.csproj" />
+    <PackageReference Include="Lib.Harmony" Version="2.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Shared">
+      <HintPath>$(SharedDllPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Romestead">
+      <HintPath>$(RomesteadDllPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="CandideCreator.Shared">
+      <HintPath>$(CandideCreatorSharedDllPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="CandideServer">
+      <HintPath>$(CandideServerDllPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>$(MonoGameFrameworkDllPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="FontStashSharp.Base">
+      <HintPath>$(FontStashSharpBaseDllPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="FontStashSharp.MonoGame">
+      <HintPath>$(FontStashSharpMonoGameDllPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

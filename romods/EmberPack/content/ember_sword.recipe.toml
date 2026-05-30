@@ -1,0 +1,11 @@
+resultItemId = "weapon:mod:emberpack:ember_sword"
+resultAmount = 1
+station = "embercraft"
+
+[[ingredients]]
+itemId = "material:iron_bar"
+amount = 8
+
+[[ingredients]]
+itemId = "material:coal"
+amount = 3
