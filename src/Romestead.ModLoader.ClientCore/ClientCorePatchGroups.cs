@@ -69,13 +69,6 @@ internal static class ClientCorePatchGroups
                 typeof(AggressiveComponentCheckIfAllyHasTargetPatch),
                 typeof(AggressiveComponentUpdateThreatDecayPatch))),
         new(
-            "client.gameplay.entity-definitions",
-            ModLoaderHostKind.Client,
-            static harmony => PatchTypes(
-                "Hooks live entity definition health overrides for future spawns.",
-                harmony,
-                typeof(EntitySControllerSpawnEntityDefinitionPatch))),
-        new(
             "client.maps.aliases",
             ModLoaderHostKind.Client,
             static harmony => PatchTypes(

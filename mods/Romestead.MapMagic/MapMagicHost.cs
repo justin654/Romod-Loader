@@ -22,9 +22,9 @@ using Shared.Data.Furniture;
 using Shared.Entity;
 using Shared.Models;
 
-namespace Romestead.ModLoader.ClientCore;
+namespace Romestead.MapMagic;
 
-internal static class LiveMapEditorHost
+internal static class MapMagicHost
 {
     private const string HelpWindowId = "romestead.live-map-editor.help";
     private const string PaletteWindowId = "romestead.live-map-editor.tile-palette";
@@ -68,6 +68,13 @@ internal static class LiveMapEditorHost
     private static Point? _lastPaintTile;
     private static TilePaintMode? _lastPaintMode;
     private static bool _loggedCheatEnable;
+    private static IModLogger? _modLogger;
+
+    internal static IModLogger? ModLogger
+    {
+        get => _modLogger;
+        set => _modLogger = value;
+    }
 
     internal static bool Active => _active;
 
@@ -113,6 +120,9 @@ internal static class LiveMapEditorHost
         _helpWindow?.Close();
         _helpWindow = null;
         _helpWindowSnapshot = null;
+        _paletteWindow?.Close();
+        _paletteWindow = null;
+        _paletteWindowSnapshot = null;
         _worldTileCursor = null;
         _worldTileReason = null;
         _lineAnchor = null;
@@ -651,7 +661,7 @@ internal static class LiveMapEditorHost
                 {
                     Label = ShortTileName(ground.ToString()),
                     Width = PaletteButtonWidth,
-                    OnClick = _ => SelectPaletteGround(ground, CoreState.Logger)
+                    OnClick = _ => SelectPaletteGround(ground, ModLogger)
                 })));
         return section;
     }
@@ -665,7 +675,7 @@ internal static class LiveMapEditorHost
                 {
                     Label = ShortTileName(structure.ToString()),
                     Width = PaletteButtonWidth,
-                    OnClick = _ => SelectPaletteStructure(structure, CoreState.Logger)
+                    OnClick = _ => SelectPaletteStructure(structure, ModLogger)
                 })));
         return section;
     }
@@ -680,16 +690,16 @@ internal static class LiveMapEditorHost
                 {
                     Buttons =
                     [
-                        new ModBarButton { Label = "Water", Width = PaletteButtonWidth, OnClick = _ => SelectPaletteStructure(WorldTile.StructureType.Water, CoreState.Logger) },
-                        new ModBarButton { Label = "Swamp", Width = PaletteButtonWidth, OnClick = _ => SelectPaletteStructure(WorldTile.StructureType.SwampWater, CoreState.Logger) }
+                        new ModBarButton { Label = "Water", Width = PaletteButtonWidth, OnClick = _ => SelectPaletteStructure(WorldTile.StructureType.Water, ModLogger) },
+                        new ModBarButton { Label = "Swamp", Width = PaletteButtonWidth, OnClick = _ => SelectPaletteStructure(WorldTile.StructureType.SwampWater, ModLogger) }
                     ]
                 },
                 new ModButtonBarRow
                 {
                     Buttons =
                     [
-                        new ModBarButton { Label = "BasaltPit", Width = PaletteButtonWidth, OnClick = _ => SelectPaletteStructure(WorldTile.StructureType.BasaltPit, CoreState.Logger) },
-                        new ModBarButton { Label = "LavaFlow", Width = PaletteButtonWidth, OnClick = _ => SelectPaletteGround(WorldTile.GroundType.LavaFlow, CoreState.Logger) }
+                        new ModBarButton { Label = "BasaltPit", Width = PaletteButtonWidth, OnClick = _ => SelectPaletteStructure(WorldTile.StructureType.BasaltPit, ModLogger) },
+                        new ModBarButton { Label = "LavaFlow", Width = PaletteButtonWidth, OnClick = _ => SelectPaletteGround(WorldTile.GroundType.LavaFlow, ModLogger) }
                     ]
                 }
             }
@@ -788,40 +798,40 @@ internal static class LiveMapEditorHost
                 {
                     Buttons =
                     [
-                        new ModBarButton { Label = "Heal", Width = 82, OnClick = _ => HealEntityTarget(CoreState.Logger) },
-                        new ModBarButton { Label = "+25 HP", Width = 82, OnClick = _ => NudgeEntityHealth(EntityHealthStep, CoreState.Logger) }
+                        new ModBarButton { Label = "Heal", Width = 82, OnClick = _ => HealEntityTarget(ModLogger) },
+                        new ModBarButton { Label = "+25 HP", Width = 82, OnClick = _ => NudgeEntityHealth(EntityHealthStep, ModLogger) }
                     ]
                 },
                 new ModButtonBarRow
                 {
                     Buttons =
                     [
-                        new ModBarButton { Label = "-25 HP", Width = 82, OnClick = _ => NudgeEntityHealth(-EntityHealthStep, CoreState.Logger) },
-                        new ModBarButton { Label = "1 HP", Width = 82, OnClick = _ => SetEntityHealthToOne(CoreState.Logger) }
+                        new ModBarButton { Label = "-25 HP", Width = 82, OnClick = _ => NudgeEntityHealth(-EntityHealthStep, ModLogger) },
+                        new ModBarButton { Label = "1 HP", Width = 82, OnClick = _ => SetEntityHealthToOne(ModLogger) }
                     ]
                 },
                 new ModButtonBarRow
                 {
                     Buttons =
                     [
-                        new ModBarButton { Label = "Max +25", Width = 82, OnClick = _ => NudgeEntityMaxHealth(EntityHealthStep, CoreState.Logger) },
-                        new ModBarButton { Label = "Max -25", Width = 82, OnClick = _ => NudgeEntityMaxHealth(-EntityHealthStep, CoreState.Logger) }
+                        new ModBarButton { Label = "Max +25", Width = 82, OnClick = _ => NudgeEntityMaxHealth(EntityHealthStep, ModLogger) },
+                        new ModBarButton { Label = "Max -25", Width = 82, OnClick = _ => NudgeEntityMaxHealth(-EntityHealthStep, ModLogger) }
                     ]
                 },
                 new ModButtonBarRow
                 {
                     Buttons =
                     [
-                        new ModBarButton { Label = "Max x2", Width = 82, OnClick = _ => ScaleEntityMaxHealth(2f, CoreState.Logger) },
-                        new ModBarButton { Label = "Max /2", Width = 82, OnClick = _ => ScaleEntityMaxHealth(0.5f, CoreState.Logger) }
+                        new ModBarButton { Label = "Max x2", Width = 82, OnClick = _ => ScaleEntityMaxHealth(2f, ModLogger) },
+                        new ModBarButton { Label = "Max /2", Width = 82, OnClick = _ => ScaleEntityMaxHealth(0.5f, ModLogger) }
                     ]
                 },
                 new ModButtonBarRow
                 {
                     Buttons =
                     [
-                        new ModBarButton { Label = "Save Default", Width = 112, OnClick = _ => SaveEntityHealthDefault(CoreState.Logger) },
-                        new ModBarButton { Label = "Clear Default", Width = 112, OnClick = _ => ClearEntityHealthDefault(CoreState.Logger) }
+                        new ModBarButton { Label = "Save Default", Width = 112, OnClick = _ => SaveEntityHealthDefault(ModLogger) },
+                        new ModBarButton { Label = "Clear Default", Width = 112, OnClick = _ => ClearEntityHealthDefault(ModLogger) }
                     ]
                 }
             }

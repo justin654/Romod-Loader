@@ -1182,7 +1182,7 @@ internal static class StandardModeUpdatePatch
     {
         if (CoreState.Logger is { } log)
         {
-            LiveMapEditorHost.UpdateWorldEditor(log, __instance.IsMouseOverGui, __instance.CandideDesktop.DesktopWidth);
+            MapMagicIntegration.Host?.UpdateWorldEditor(log, __instance.IsMouseOverGui, __instance.CandideDesktop.DesktopWidth);
         }
     }
 
@@ -1205,7 +1205,7 @@ internal static class StandardModeDrawInWorldUiPatch
 {
     private static void Postfix(SpriteBatch batch)
     {
-        LiveMapEditorHost.DrawInWorldUi(batch);
+        MapMagicIntegration.Host?.DrawInWorldUi(batch);
     }
 }
 
@@ -1217,7 +1217,7 @@ internal static class StandardModeLeavePatch
         ModWindowHost.Detach();
         ModCraftingWindowHost.Detach();
         ModEquipmentHeldVfxHost.Clear();
-        LiveMapEditorHost.DisableWorldEditor(CoreState.Logger);
+        MapMagicIntegration.Host?.DisableWorldEditor(CoreState.Logger);
     }
 }
 
@@ -1230,7 +1230,7 @@ internal static class LiveEditorNormalStateCheckMainAttackPatch
 
     internal static bool AllowAttack(ref bool result)
     {
-        if (!LiveMapEditorHost.Active)
+        if (MapMagicIntegration.Host?.Active != true)
         {
             return true;
         }

@@ -70,10 +70,10 @@ format spec and quick start. For how the C# mod surface lines up with
   CLI packer / validator (`romestead-mod init|validate|pack`). Builds to
   `artifacts/romod-tool/romestead-mod.dll`. See
   [docs/romod-packages.md](docs/romod-packages.md) for the format spec.
-- `mods/Romestead.NewItemsMod`, `mods/Romestead.SkipIntroMod`, `mods/Romestead.IconDumpMod`
+- `mods/Romestead.NewItemsMod`, `mods/Romestead.SkipIntroMod`, `mods/Romestead.IconDumpMod`, `mods/Romestead.MapMagic`
   Sample / reference **C# mods** — kept for things `.romod` can't express:
   custom UI + equipment (NewItemsMod), a Harmony scene patch (SkipIntroMod),
-  and a dev-only reflection/icon dumper (IconDumpMod).
+  a dev-only reflection/icon dumper (IconDumpMod), and the optional in-world MapMagic editor (F8/F9).
 - `romods/EmberPack`, `romods/CalmBeastsPack`, `romods/MapTweaksPack`
   Sample **`.romod` packages** (data-only, no compile). EmberPack is a full
   item→station→placeable bench demo; CalmBeastsPack shows aggro tuning;

@@ -1,0 +1,12 @@
+{
+  "id": "romestead.map-magic",
+  "name": "MapMagic",
+  "version": "0.1.0",
+  "syncMode": "ClientOnly",
+  "author": "Romestead Modding Workspace",
+  "description": "In-world object and tile editor (F8 / F9). Optional replacement for the editor previously bundled in ClientCore.",
+  "homepage": "",
+  "dependencies": [
+    "romestead.modloader.core"
+  ]
+}

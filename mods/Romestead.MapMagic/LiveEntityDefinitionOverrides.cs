@@ -1,8 +1,9 @@
 using System.Text.Json;
 using CandideServer.ServerControllers;
 using HarmonyLib;
+using Romestead.ModLoader;
 
-namespace Romestead.ModLoader.ClientCore;
+namespace Romestead.MapMagic;
 
 internal static class LiveEntityDefinitionOverrides
 {
@@ -92,11 +93,11 @@ internal static class LiveEntityDefinitionOverrides
                     }
                 }
 
-                CoreState.Logger?.Info($"[entity-definitions] loaded {_healthByBaseId.Count} health override(s).");
+                MapMagicHost.ModLogger?.Info($"[entity-definitions] loaded {_healthByBaseId.Count} health override(s).");
             }
             catch (Exception ex)
             {
-                CoreState.Logger?.Warn($"[entity-definitions] failed to load '{path}': {ex.Message}");
+                MapMagicHost.ModLogger?.Warn($"[entity-definitions] failed to load '{path}': {ex.Message}");
             }
         }
     }
