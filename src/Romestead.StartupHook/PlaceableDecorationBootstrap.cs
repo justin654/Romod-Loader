@@ -1,10 +1,4 @@
-using CandideCreator.Shared.Helpers;
-using CandideServer;
-using CandideServer.Entities;
-using CandideServer.Saving;
-using CandideServer.ServerControllers;
 using CandideServer.ServerManagers;
-using CandideServer.Toolkit;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Romestead.ModLoader;
@@ -30,7 +24,6 @@ internal static class PlaceableDecorationBootstrap
     private static bool _addDataReentry;
     private static bool _spawnRouting;
     private static readonly HashSet<string> InjectedDecorations = new(StringComparer.Ordinal);
-    private static readonly Dictionary<Guid, Guid> LoadedDecorationWorldIds = new();
 
     [HarmonyPatch(typeof(DecorationsDataBase), nameof(DecorationsDataBase.AddData))]
     [HarmonyPostfix]
@@ -169,111 +162,11 @@ internal static class PlaceableDecorationBootstrap
         }
     }
 
-    [HarmonyPatch(typeof(GameSaveManager), "LoadGameState")]
-    [HarmonyPostfix]
-    private static void LoadGameStatePostfixCaptureWorldIds()
-    {
-        LoadedDecorationWorldIds.Clear();
-
-        foreach (var entity in ServerGameState.Entities.Values)
-        {
-            var placeable = FindTrackedPlaceable(entity.BaseId);
-            if (placeable is null)
-            {
-                continue;
-            }
-
-            LoadedDecorationWorldIds[entity.Id] = entity.WorldId;
-        }
-    }
-
-    [HarmonyPatch(typeof(WorldSController), "OnServerGameStateLoaded")]
-    [HarmonyPostfix]
-    private static void OnServerGameStateLoadedPostfixRespawnMissingDecorationEntities()
-    {
-        foreach (var decoration in ServerGameState.Decorations.Values)
-        {
-            var placeable = FindTrackedPlaceable(decoration.ConstructionId);
-            if (placeable is null)
-            {
-                continue;
-            }
-
-            if (ServerGameState.Entities.ContainsKey(decoration.Id))
-            {
-                continue;
-            }
-
-            if (!LoadedDecorationWorldIds.TryGetValue(decoration.Id, out var worldId))
-            {
-                SharedContentBootstrap.Logger?.Warn(
-                    $"[placeable-bootstrap] Missing cached world id for cold-load respawn of '{placeable.Id}' decoration={decoration.Id}; cannot restore entity.");
-                continue;
-            }
-
-            var decorationData = DecorationsDataBase.GetDecorationOrNull(decoration.DecorationId);
-            if (decorationData is null)
-            {
-                SharedContentBootstrap.Logger?.Warn(
-                    $"[placeable-bootstrap] Missing decoration data '{decoration.DecorationId}' during cold-load respawn of '{placeable.Id}'.");
-                continue;
-            }
-
-            if (!ServerEntityDataManager.TryGetEntityBaseData(decorationData.SpawnedEntityGuid, out _))
-            {
-                SharedContentBootstrap.Logger?.Warn(
-                    $"[placeable-bootstrap] Missing server base data {decorationData.SpawnedEntityGuid} during cold-load respawn of '{placeable.Id}'.");
-                continue;
-            }
-
-            try
-            {
-                var spawnArgs = new SpawnEntityArgs
-                {
-                    Id = decoration.Id,
-                    BaseId = decorationData.SpawnedEntityGuid,
-                    WorldId = worldId,
-                    Position = TileBoundsHelper
-                        .GetCenteredPositionFromTileBounds(decoration.TileBounds)
-                        .ToVector3Xyz(0f) + Vector3.Zero
-                };
-
-                var entity = EntitySController.SpawnEntity(spawnArgs);
-                if (entity is null)
-                {
-                    SharedContentBootstrap.Logger?.Warn(
-                        $"[placeable-bootstrap] Cold-load respawn returned null for '{placeable.Id}' decoration={decoration.Id} world={worldId}.");
-                    continue;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                SharedContentBootstrap.Logger?.Error(
-                    $"[placeable-bootstrap] Cold-load respawn failed for '{placeable.Id}' decoration={decoration.Id}.",
-                    ex);
-            }
-        }
-    }
-
     private static ModPlaceableStation? FindTrackedPlaceable(string constructionId)
     {
         foreach (var placeable in ModRegistries.Placeables.Pending)
         {
             if (string.Equals(placeable.ConstructionId, constructionId, StringComparison.Ordinal))
-            {
-                return placeable;
-            }
-        }
-
-        return null;
-    }
-
-    private static ModPlaceableStation? FindTrackedPlaceable(Guid baseGuid)
-    {
-        foreach (var placeable in ModRegistries.Placeables.Pending)
-        {
-            if (placeable.DeriveDoodadGuid() == baseGuid)
             {
                 return placeable;
             }

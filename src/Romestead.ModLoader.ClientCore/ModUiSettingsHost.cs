@@ -13,12 +13,10 @@ internal static class ModUiSettingsHost
 {
     internal const string RootPageId = "romestead.modloader.ui.root";
     internal const string RootSidebarEntryId = "romestead.modloader.ui.sidebar.root";
-    private const string PreviewPageId = "romestead.modloader.ui.preview";
-    private const string RegistryPageId = "romestead.modloader.ui.registry";
     internal const string LogPageId = "romestead.modloader.ui.log";
+    private const string DiagnosticsPageId = "romestead.modloader.ui.diagnostics";
     private const string ModDetailPagePrefix = "romestead.modloader.ui.moddetail:";
     private static bool _builtInPagesRegistered;
-    private static bool _demoToggleEnabled = true;
 
     public static void EnsureBuiltInPagesRegistered()
     {
@@ -37,31 +35,14 @@ internal static class ModUiSettingsHost
             Order = -300,
             Build = _ => BuildRootPage()
         });
-        ModRegistries.Ui.RegisterSidebarEntry(new ModSidebarEntryDefinition
-        {
-            Id = RootSidebarEntryId,
-            Title = "Mod Loader",
-            Icon = "scroll:red",
-            Order = -300,
-            TargetPageId = RootPageId
-        });
 
         ModRegistries.Ui.RegisterSettingsPage(new ModSettingsPageDefinition
         {
-            Id = PreviewPageId,
-            Title = "UI API Preview",
-            Icon = "scroll:red",
-            Order = -200,
-            Build = _ => BuildPreviewPage()
-        });
-
-        ModRegistries.Ui.RegisterSettingsPage(new ModSettingsPageDefinition
-        {
-            Id = RegistryPageId,
-            Title = "UI Registry Summary",
+            Id = DiagnosticsPageId,
+            Title = "Mod Loader Diagnostics",
             Icon = "scroll:red",
             Order = -190,
-            Build = _ => BuildRegistryPage()
+            Build = _ => BuildDiagnosticsPage()
         });
 
         ModRegistries.Ui.RegisterSettingsPage(new ModSettingsPageDefinition
@@ -77,8 +58,45 @@ internal static class ModUiSettingsHost
     public static IReadOnlyList<ModSettingsPageDefinition> GetRegisteredPages() =>
         ModRegistries.Ui.Pages;
 
-    public static IReadOnlyList<ModSidebarEntryDefinition> GetRegisteredSidebarEntries() =>
-        ModRegistries.Ui.SidebarEntries;
+    private const string ModDetailSidebarPrefix = "romestead.modloader.ui.sidebar.moddetail:";
+
+    /// <summary>
+    /// Builds the full left-hand menu shown in the pause-menu settings list, mirroring
+    /// the game's own Settings categories: a "Mod Loader" overview, one entry per
+    /// installed mod (drilling into its detail page), any pages mods registered
+    /// themselves, then Diagnostics and Log. Computed on demand so the mod list is
+    /// fully populated (mods load after the client core initializes).
+    /// </summary>
+    public static IReadOnlyList<ModSidebarEntryDefinition> BuildSidebarEntries()
+    {
+        var entries = new List<ModSidebarEntryDefinition>
+        {
+            new() { Id = RootSidebarEntryId, Title = "Mod Loader", Icon = "scroll:red", TargetPageId = RootPageId }
+        };
+
+        foreach (var mod in ModLoaderUiState.GetKnownMods().OrderBy(mod => mod.Name, StringComparer.OrdinalIgnoreCase))
+        {
+            entries.Add(new ModSidebarEntryDefinition
+            {
+                Id = ModDetailSidebarPrefix + mod.Id,
+                Title = mod.Name,
+                Icon = "scroll:red",
+                TargetPageId = GetModDetailPageId(mod.Id)
+            });
+        }
+
+        // Pages that mods registered for themselves (their own settings UIs).
+        foreach (var entry in ModRegistries.Ui.SidebarEntries
+            .Where(entry => !string.Equals(entry.Id, RootSidebarEntryId, StringComparison.Ordinal)))
+        {
+            entries.Add(entry);
+        }
+
+        entries.Add(new ModSidebarEntryDefinition { Id = "romestead.modloader.ui.sidebar.diagnostics", Title = "Diagnostics", Icon = "scroll:red", TargetPageId = DiagnosticsPageId });
+        entries.Add(new ModSidebarEntryDefinition { Id = "romestead.modloader.ui.sidebar.log", Title = "Log", Icon = "scroll:red", TargetPageId = LogPageId });
+
+        return entries;
+    }
 
     internal static string GetModDetailPageId(string modId) => $"{ModDetailPagePrefix}{modId}";
 
@@ -147,65 +165,35 @@ internal static class ModUiSettingsHost
             [
                 new ModLabelRow
                 {
-                    Text = "Manage installed mods, open registered mod pages, and review loader diagnostics.",
+                    Text = "Select a mod from the menu on the left to enable, disable, or inspect it. Diagnostics and the loader log are at the bottom of the list.",
                     Style = ModUiTextStyle.Body
                 },
                 new ModInfoRow { Label = "Loaded mods", Value = ModRegistries.LoadedMods.Mods.Count.ToString(), Style = ModUiTextStyle.BodyStrong },
-                new ModInfoRow { Label = "Failed mods", Value = ModRegistries.Diagnostics.FailedMods.Count.ToString() },
-                new ModInfoRow { Label = "Registered settings pages", Value = GetRegisteredPages().Count.ToString() },
-                new ModInfoRow { Label = "Compatibility entries", Value = (ModRegistries.Diagnostics.LocalCompatibilityReport?.Entries.Count ?? 0).ToString() },
+                new ModInfoRow { Label = "Failed mods", Value = ModRegistries.Diagnostics.FailedMods.Count.ToString() }
+            ]
+        });
+
+        return page;
+    }
+
+    private static ModSettingsPage BuildDiagnosticsPage()
+    {
+        var page = new ModSettingsPage();
+
+        page.Sections.Add(new ModSection
+        {
+            Title = "Loader",
+            Rows =
+            [
+                new ModInfoRow { Label = "Loaded mods", Value = ModRegistries.LoadedMods.Mods.Count.ToString() },
                 new ModInfoRow { Label = "Patch groups", Value = ModRegistries.Diagnostics.PatchGroups.Count.ToString() },
                 new ModInfoRow { Label = "Unavailable capabilities", Value = ModRegistries.Diagnostics.CapabilityStates.Count(state => state.State == ModCapabilityState.Unavailable).ToString() },
                 new ModInfoRow { Label = "Config path", Value = ModRegistries.Diagnostics.ConfigPath }
             ]
         });
 
-        page.Sections.Add(new ModSection
-        {
-            Title = "Actions",
-            Rows =
-            [
-                new ModToggleRow
-                {
-                    Label = "Enforce multiplayer compatibility",
-                    Description = "Disconnect multiplayer joins after the compatibility report if required mods do not match.",
-                    Value = ModRegistries.Diagnostics.EnforceMultiplayerCompatibility,
-                    OnChanged = (context, enabled) =>
-                    {
-                        ModLoaderUiState.WriteLoaderConfig(ModRegistries.Diagnostics.DisabledModIds, enabled);
-                        context.RefreshCurrentPage();
-                    }
-                },
-                new ModButtonRow
-                {
-                    Label = "Open Mod Loader Log",
-                    OnClick = context => context.NavigateToPage(LogPageId)
-                }
-            ]
-        });
-
-        var registeredPages = GetRegisteredPages()
-            .Where(pageDefinition => !string.Equals(pageDefinition.Id, RootPageId, StringComparison.Ordinal))
-            .ToList();
-        if (registeredPages.Count > 0)
-        {
-            var section = new ModSection { Title = "Registered Mod Pages" };
-            foreach (var registeredPage in registeredPages)
-            {
-                section.Rows.Add(new ModNavigateRow
-                {
-                    Label = registeredPage.Title,
-                    TargetPageId = registeredPage.Id
-                });
-            }
-
-            page.Sections.Add(section);
-        }
-
-        page.Sections.Add(BuildCompatibilitySection());
-        page.Sections.Add(BuildCapabilitySection());
         page.Sections.Add(BuildRegisteredContentSection());
-        page.Sections.Add(BuildInstalledModsSection());
+        page.Sections.Add(BuildCapabilitySection());
 
         if (ModRegistries.Diagnostics.DisabledModIds.Count > 0)
         {
@@ -269,40 +257,6 @@ internal static class ModUiSettingsHost
         }
 
         return page;
-    }
-
-    private static ModSection BuildCompatibilitySection()
-    {
-        var snapshot = ModRegistries.Diagnostics.LatestRemoteCompatibilitySnapshot;
-        var comparison = ModRegistries.Diagnostics.LatestRemoteCompatibilityComparison;
-        var section = new ModSection { Title = "Latest Multiplayer Compatibility" };
-
-        if (snapshot is null || comparison is null)
-        {
-            section.Rows.Add(new ModLabelRow
-            {
-                Text = "No remote host snapshot received yet.",
-                Style = ModUiTextStyle.Body
-            });
-            return section;
-        }
-
-        section.Rows.Add(new ModInfoRow { Label = "Remote source", Value = snapshot.Source });
-        section.Rows.Add(new ModInfoRow { Label = "Remote entries", Value = snapshot.Entries.Count.ToString() });
-        section.Rows.Add(new ModInfoRow { Label = "Result", Value = comparison.Compatible ? "Compatible" : "Incompatible", Style = ModUiTextStyle.BodyStrong });
-
-        if (comparison.Issues.Count == 0)
-        {
-            section.Rows.Add(new ModLabelRow { Text = "No mismatch issues were reported." });
-            return section;
-        }
-
-        foreach (var issue in comparison.Issues)
-        {
-            section.Rows.Add(new ModLabelRow { Text = issue.Message });
-        }
-
-        return section;
     }
 
     private static ModSection BuildRegisteredContentSection()
@@ -371,55 +325,6 @@ internal static class ModUiSettingsHost
         return section;
     }
 
-    private static ModSection BuildInstalledModsSection()
-    {
-        var section = new ModSection { Title = "Installed Mods" };
-
-        foreach (var mod in ModLoaderUiState.GetKnownMods())
-        {
-            var isEnabled = !ModRegistries.Diagnostics.DisabledModIds.Contains(mod.Id, StringComparer.OrdinalIgnoreCase);
-            var reportEntry = ModRegistries.Diagnostics.LocalCompatibilityReport?.Entries
-                .FirstOrDefault(entry => string.Equals(entry.Id, mod.Id, StringComparison.OrdinalIgnoreCase));
-            var loadState = reportEntry?.LoadState.ToString() ?? "Unknown";
-
-            section.Rows.Add(new ModToggleRow
-            {
-                Label = $"{mod.Name} v{mod.Version}",
-                Description = "Toggle whether this mod loads on the next game launch.",
-                Value = isEnabled,
-                OnChanged = (context, enabled) =>
-                {
-                    var nextDisabledIds = ModRegistries.Diagnostics.DisabledModIds
-                        .Where(id => !string.Equals(id, mod.Id, StringComparison.OrdinalIgnoreCase))
-                        .ToList();
-                    if (!enabled)
-                    {
-                        nextDisabledIds.Add(mod.Id);
-                    }
-
-                    ModLoaderUiState.WriteLoaderConfig(nextDisabledIds, ModRegistries.Diagnostics.EnforceMultiplayerCompatibility);
-                    context.RefreshCurrentPage();
-                }
-            });
-            section.Rows.Add(new ModButtonRow
-            {
-                Label = $"Open details for {mod.Name}",
-                OnClick = context => context.NavigateToPage(GetModDetailPageId(mod.Id))
-            });
-            section.Rows.Add(new ModLabelRow
-            {
-                Text = $"{mod.Id} | SyncMode={mod.SyncMode} | LoadState={loadState} | {mod.AssemblyPath}"
-            });
-        }
-
-        if (section.Rows.Count == 0)
-        {
-            section.Rows.Add(new ModLabelRow { Text = "No mods discovered yet." });
-        }
-
-        return section;
-    }
-
     private static ModSettingsPage BuildMissingModPage(string modId)
     {
         return new ModSettingsPage
@@ -460,11 +365,6 @@ internal static class ModUiSettingsHost
             .FirstOrDefault(candidate => string.Equals(candidate.ModId, mod.Id, StringComparison.OrdinalIgnoreCase));
         var compatibility = ModRegistries.Diagnostics.LocalCompatibilityReport?.Entries
             .FirstOrDefault(candidate => string.Equals(candidate.Id, mod.Id, StringComparison.OrdinalIgnoreCase));
-        var remoteSnapshotEntry = ModRegistries.Diagnostics.LatestRemoteCompatibilitySnapshot?.Entries
-            .FirstOrDefault(candidate => string.Equals(candidate.Id, mod.Id, StringComparison.OrdinalIgnoreCase));
-        var remoteIssues = ModRegistries.Diagnostics.LatestRemoteCompatibilityComparison?.Issues
-            .Where(issue => string.Equals(issue.ModId, mod.Id, StringComparison.OrdinalIgnoreCase))
-            .ToList() ?? [];
         var errors = ModRegistries.Diagnostics.Errors
             .Where(error => error.Source.Contains(mod.Id, StringComparison.OrdinalIgnoreCase) ||
                 error.Source.Contains(mod.Name, StringComparison.OrdinalIgnoreCase) ||
@@ -482,9 +382,35 @@ internal static class ModUiSettingsHost
             [
                 new ModInfoRow { Label = "Name", Value = $"{mod.Name} v{mod.Version}", Style = ModUiTextStyle.BodyStrong },
                 new ModInfoRow { Label = "ID", Value = mod.Id },
-                new ModInfoRow { Label = "Enabled next launch", Value = (!isDisabled).ToString() },
                 new ModInfoRow { Label = "Sync mode", Value = mod.SyncMode.ToString() },
                 new ModInfoRow { Label = "DLL", Value = mod.AssemblyPath }
+            ]
+        });
+
+        page.Sections.Add(new ModSection
+        {
+            Title = "Controls",
+            Rows =
+            [
+                new ModToggleRow
+                {
+                    Label = "Enabled next launch",
+                    Description = "Toggle whether this mod loads on the next game launch.",
+                    Value = !isDisabled,
+                    OnChanged = (context, enabled) =>
+                    {
+                        var nextDisabledIds = ModRegistries.Diagnostics.DisabledModIds
+                            .Where(id => !string.Equals(id, mod.Id, StringComparison.OrdinalIgnoreCase))
+                            .ToList();
+                        if (!enabled)
+                        {
+                            nextDisabledIds.Add(mod.Id);
+                        }
+
+                        ModLoaderUiState.WriteLoaderConfig(nextDisabledIds);
+                        context.RefreshCurrentPage();
+                    }
+                }
             ]
         });
 
@@ -502,28 +428,6 @@ internal static class ModUiSettingsHost
             if (!string.IsNullOrWhiteSpace(compatibility.Detail))
             {
                 section.Rows.Add(new ModInfoRow { Label = "Detail", Value = compatibility.Detail });
-            }
-
-            page.Sections.Add(section);
-        }
-
-        if (remoteSnapshotEntry is not null || remoteIssues.Count > 0)
-        {
-            var section = new ModSection { Title = "Remote Compatibility" };
-            if (remoteSnapshotEntry is not null)
-            {
-                section.Rows.Add(new ModInfoRow { Label = "Remote version", Value = remoteSnapshotEntry.Version });
-                section.Rows.Add(new ModInfoRow { Label = "Remote load state", Value = remoteSnapshotEntry.LoadState.ToString() });
-                section.Rows.Add(new ModInfoRow { Label = "Present on remote", Value = remoteSnapshotEntry.Present.ToString() });
-                if (!string.IsNullOrWhiteSpace(remoteSnapshotEntry.Detail))
-                {
-                    section.Rows.Add(new ModInfoRow { Label = "Remote detail", Value = remoteSnapshotEntry.Detail });
-                }
-            }
-
-            foreach (var issue in remoteIssues)
-            {
-                section.Rows.Add(new ModLabelRow { Text = issue.Message });
             }
 
             page.Sections.Add(section);
@@ -619,147 +523,6 @@ internal static class ModUiSettingsHost
         }
 
         return page;
-    }
-
-    private static ModSettingsPage BuildPreviewPage()
-    {
-        return new ModSettingsPage
-        {
-            Sections =
-            [
-                new ModSection
-                {
-                    Title = "Overview",
-                    Rows =
-                    [
-                        new ModLabelRow
-                        {
-                            Text = "This page is rendered through the declarative mod UI registry.",
-                            Style = ModUiTextStyle.Title
-                        },
-                        new ModInfoRow
-                        {
-                            Label = "Registered settings pages",
-                            Value = ModRegistries.Ui.Pages.Count.ToString()
-                        },
-                        new ModInfoRow
-                        {
-                            Label = "Loaded mods",
-                            Value = ModRegistries.LoadedMods.Mods.Count.ToString()
-                        },
-                        new ModInfoRow
-                        {
-                            Label = "Failed mods",
-                            Value = ModRegistries.Diagnostics.FailedMods.Count.ToString()
-                        }
-                    ]
-                },
-                new ModSection
-                {
-                    Title = "Interactive Rows",
-                    Rows =
-                    [
-                        new ModToggleRow
-                        {
-                            Label = "Preview toggle",
-                            Description = "Demonstrates a registry-backed toggle row with safe callback execution.",
-                            Value = _demoToggleEnabled,
-                            OnChanged = (context, enabled) =>
-                            {
-                                _demoToggleEnabled = enabled;
-                                context.Logger.Info($"[modui] Preview toggle changed: {enabled}");
-                                context.RefreshCurrentPage();
-                            }
-                        },
-                        new ModButtonRow
-                        {
-                            Label = "Write test line to mod log",
-                            OnClick = context =>
-                            {
-                                context.Logger.Info("[modui] Preview button clicked.");
-                                context.RefreshCurrentPage();
-                            }
-                        },
-                        new ModButtonRow
-                        {
-                            Label = "Refresh this page",
-                            OnClick = context => context.RefreshCurrentPage()
-                        }
-                    ]
-                },
-                new ModSection
-                {
-                    Title = "Navigation",
-                    Rows =
-                    [
-                        new ModNavigateRow
-                        {
-                            Label = "Open UI registry summary",
-                            TargetPageId = RegistryPageId
-                        }
-                    ]
-                }
-            ]
-        };
-    }
-
-    private static ModSettingsPage BuildRegistryPage()
-    {
-        var pageIds = ModRegistries.Ui.Pages
-            .Select(page => $"{page.Title} ({page.Id})")
-            .ToArray();
-
-        return new ModSettingsPage
-        {
-            Sections =
-            [
-                new ModSection
-                {
-                    Title = "Registered Pages",
-                    Rows =
-                    [
-                        new ModListRow
-                        {
-                            Label = "Pages",
-                            Values = pageIds,
-                            EmptyText = "No settings pages registered."
-                        }
-                    ]
-                },
-                new ModSection
-                {
-                    Title = "Diagnostics",
-                    Rows =
-                    [
-                        new ModInfoRow
-                        {
-                            Label = "Content diagnostics",
-                            Value = ModRegistries.Diagnostics.ContentDiagnostics.Count.ToString()
-                        },
-                        new ModInfoRow
-                        {
-                            Label = "Patch groups",
-                            Value = ModRegistries.Diagnostics.PatchGroups.Count.ToString()
-                        },
-                        new ModInfoRow
-                        {
-                            Label = "Capabilities",
-                            Value = ModRegistries.Diagnostics.CapabilityStates.Count.ToString()
-                        },
-                        new ModInfoRow
-                        {
-                            Label = "Compatibility entries",
-                            Value = (ModRegistries.Diagnostics.LocalCompatibilityReport?.Entries.Count ?? 0).ToString()
-                        },
-                        new ModInfoRow
-                        {
-                            Label = "Log path",
-                            Value = ModRegistries.Diagnostics.LogPath
-                        }
-                    ]
-                }
-            ]
-        };
     }
 
     private static ModSettingsPage BuildLogPage()

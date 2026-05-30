@@ -1,5 +1,5 @@
 id = "justin.emberpack.embercraft-bench"
-stationId = "embercraft"
+stationId = "emberpack:embercraft"
 displayName = "Embercraft Bench"
 description = "A compact ember-fed workbench. Place it, then press E to open the Embercraft crafting window."
 iconId = "icon:emberpack:ember_sword"

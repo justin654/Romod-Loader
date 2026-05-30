@@ -12,8 +12,15 @@ namespace Romestead.StartupHook.RomodIntegration;
 ///
 /// Deliberately:
 /// * does not patch any game type with Harmony,
-/// * does not touch any game database directly,
-/// * has no client-only references — works on the dedicated server too.
+/// * does not touch any game database directly from here — only registers definitions,
+/// * keeps this adapter free of MonoGame / client UI types; it only forwards parsed TOML
+///   into <see cref="IContentRegistry"/>.
+///
+/// Some kinds (for example aggro tuning, map file redirects, icons, skills) are only
+/// consumed where <c>ClientCore</c> runs. A <c>.romod</c> may still load on the
+/// dedicated server when <see cref="MultiplayerSyncMode"/> allows both hosts; entries that
+/// have no server-side drain are harmless no-ops there. See the workspace README section
+/// *What gets injected on which host* for the current matrix.
 /// </summary>
 internal sealed class RomodDataMod : IRomesteadMod, IContentMod
 {

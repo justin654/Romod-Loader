@@ -13,4 +13,10 @@ All scripts assume the working directory is the **workspace root** (the folder t
 | [`Launch-RomesteadModded.ps1`](../Launch-RomesteadModded.ps1) | Convenience: runs `Romestead.exe` from the configured game root. |
 | [`diag-launch.ps1`](../diag-launch.ps1) | Launches the game with `COREHOST_TRACE` and logs to `artifacts/diag/`. |
 
+## `tools/`
+
+| Script | Role |
+|--------|------|
+| [`install-xnbcli.ps1`](../tools/install-xnbcli.ps1) | Downloads pinned **xnbcli** into `tools/xnbcli/` (binaries are gitignored). Used by Mod Value Editor’s XNB conversion path. |
+
 There are no legacy alternate installers in this folder; if you add new automation, extend `build.ps1` / `dev-install.ps1` or document a new script here.

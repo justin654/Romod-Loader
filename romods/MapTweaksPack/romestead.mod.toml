@@ -4,5 +4,5 @@ version = "0.1.0"
 schemaVersion = 1
 syncMode = "ClientOnly"
 author = "Justin"
-description = "Sample .romod package: a map alias plus a client-side map file redirect. Map tweaks are client-only."
+description = "Sample .romod package: a client-side map alias plus a packaged .tmx map file redirect. Map tweaks are client-only."
 homepage = ""

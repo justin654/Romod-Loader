@@ -1,9 +1,10 @@
 # `.romod` packages
 
 `.romod` is a zip-based, data-only mod format for Romestead. Authors who only
-want to add items, recipes, icons, stats, skills, skill effects, player
-classes, or **value overrides** (tweak existing items / entity templates) can
-ship a `.romod` archive instead of writing and building a C# mod.
+want to add declarative content (items, recipes, icons, stats, skills, skill
+effects, player classes, value overrides, text, aggro tuning, crafting
+stations, placeables, maps) can ship a `.romod` archive instead of writing and
+building a C# mod.
 
 `.romod` packages plug into the same loader that already runs C# mods. They
 go through the same content registries (`IItemRegistry`,
@@ -15,11 +16,12 @@ detected before registration.
 > **Registry availability vs. host drain.** All content registries
 > (`IItemRegistry`, `IRecipeRegistry`, `IIconRegistry`, …) are present on
 > both the client and the dedicated server. But not every content kind is
-> drained on every host — items, recipes, equipment, and stats land on
-> both hosts via `SharedContentBootstrap`; icons, skills, skill effects,
-> player classes, and aggro tuning are drained only by `ClientCore` on
-> the client today. See the *What gets injected on which host* table in
-> the workspace README for the current matrix.
+> drained on every host — items, recipes, stats, value overrides, crafting
+> stations, placeables, and related shared content land on both hosts via
+> `SharedContentBootstrap` (and associated hooks); icons, skills, skill effects,
+> player classes, aggro tuning, and map file data are drained only by
+> `ClientCore` on the client today. See the *What gets injected on which host*
+> table in the workspace README for the current matrix.
 
 ## Quick start
 
@@ -121,9 +123,15 @@ values. Unknown top-level fields warn but do not fail.
 * `Incompatible` is treated the same as the existing C# loader treats it
   (the mod participates in compatibility reporting but does not run).
 
-`.romod` packages are pure data, so any content type currently routed
-through the shared bootstrap (items, recipes, equipment, stats) works on
-both client and dedicated server without any extra plumbing.
+`.romod` packages are pure data, but **not every kind drains on every
+host**. Shared bootstrap covers items, recipes, stats, value overrides,
+crafting stations, placeables, and related shared plumbing; icons, skills,
+skill effects, player classes, aggro tuning, and map file data follow the
+same **client vs server** split as C# mods (see *Registry availability vs.
+host drain* at the top of this doc and the full *What gets injected on which
+host* table in the workspace [README](../README.md)). Use `syncMode` so a
+package that only makes sense on the client is not expected on a headless
+dedicated server.
 
 ## Dependencies
 
@@ -164,9 +172,14 @@ Defined by:
 - other.firepack    Romestead.OtherMod.dll
 ```
 
-* Duplicates are scoped per kind: `item`, `recipe`, `icon`, `skill`,
-  `stat`, `player-class`, `text`. An item id and a stat id that happen to
-  share text do not collide.
+* Duplicates are scoped per **content kind** among entries that expose a
+  stable id for validation (`item`, `recipe` result, `icon`, `skill`,
+  `stat`, `player-class`, `text`, `aggro-tuning`, `crafting-station`,
+  `placeable`, composite `skill-effect`, …). An item id and a stat id that
+  happen to share text do not collide.
+* `*.map.toml` files are **not** keyed in that duplicate-id pass today;
+  overlapping map registrations are not caught as “duplicate map” at
+  validate time the way items are.
 * `ValueOverride` files (`*.value-override.toml`) do not contribute a
   single top-level id to the package duplicate-id pass; overlapping
   `[[items]]` targets across multiple files are not flagged as duplicates

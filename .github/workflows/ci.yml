@@ -17,5 +17,10 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
+      - name: Build mod API + CLI (no game install required)
+        run: |
+          dotnet build "src/Romestead.ModLoader.Abstractions/Romestead.ModLoader.Abstractions.csproj" -c Release
+          dotnet build "src/Romestead.ModLoader.RomodTool/Romestead.ModLoader.RomodTool.csproj" -c Release
+
       - name: Test RomodFormat (no game install required)
         run: dotnet test "tests/Romestead.RomodFormat.Tests/Romestead.RomodFormat.Tests.csproj" -c Release --verbosity normal

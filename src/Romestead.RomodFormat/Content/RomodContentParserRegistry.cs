@@ -2,7 +2,7 @@ namespace Romestead.RomodFormat.Content;
 
 /// <summary>
 /// Lookup table from <see cref="RomodContentKind"/> to its parser. Default
-/// instance is populated with the eight shipped parsers; tests and the CLI
+/// instance is populated with the thirteen default parsers; tests and the CLI
 /// can build their own with a subset.
 /// </summary>
 public sealed class RomodContentParserRegistry

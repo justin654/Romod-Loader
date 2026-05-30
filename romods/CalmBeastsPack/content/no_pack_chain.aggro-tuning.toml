@@ -1,0 +1,3 @@
+id = "justin.calmbeasts:no-pack-chain"
+type = "DisableAllyChainAggro"
+applyToBosses = false

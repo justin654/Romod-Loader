@@ -51,7 +51,6 @@ public static class StartupHook
             WarnOnFrameworkMismatch(bootLogger);
 
             RegisterAssemblyResolver(gameRoot, hookDirectory, modsDirectory);
-            MultiplayerCompatibilityCoordinator.Install(host.Kind, bootLogger);
             SharedContentBootstrap.Install(host.Kind, bootLogger);
             if (host.Kind == HostKind.Client)
             {
@@ -114,7 +113,7 @@ public static class StartupHook
             {
                 var defaultConfig = new ModLoaderConfig();
                 File.WriteAllText(configPath, JsonSerializer.Serialize(defaultConfig, ModLoaderConfig.JsonOptions));
-                ModRegistries.Diagnostics.SetConfig(configPath, defaultConfig.DisabledMods, defaultConfig.EnforceMultiplayerCompatibility);
+                ModRegistries.Diagnostics.SetConfig(configPath, defaultConfig.DisabledMods);
                 bootLogger.Info($"Created default mod config: {configPath}");
                 return defaultConfig;
             }
@@ -122,14 +121,14 @@ public static class StartupHook
             var config = JsonSerializer.Deserialize<ModLoaderConfig>(
                 File.ReadAllText(configPath),
                 ModLoaderConfig.JsonOptions) ?? new ModLoaderConfig();
-            ModRegistries.Diagnostics.SetConfig(configPath, config.DisabledMods, config.EnforceMultiplayerCompatibility);
+            ModRegistries.Diagnostics.SetConfig(configPath, config.DisabledMods);
             bootLogger.Info($"Loaded mod config: {configPath}");
             return config;
         }
         catch (Exception ex)
         {
             bootLogger.Error($"Failed to read mod config {configPath}. Continuing with all mods enabled.", ex);
-            ModRegistries.Diagnostics.SetConfig(configPath, [], false);
+            ModRegistries.Diagnostics.SetConfig(configPath, []);
             ModRegistries.Diagnostics.RegisterError(new ModLoadErrorInfo("mods.json", ex.Message));
             return new ModLoaderConfig();
         }
@@ -1076,7 +1075,6 @@ public static class StartupHook
         };
 
         public List<string> DisabledMods { get; init; } = [];
-        public bool EnforceMultiplayerCompatibility { get; init; }
 
         public bool IsDisabled(string modId) =>
             DisabledMods.Contains(modId, StringComparer.OrdinalIgnoreCase);

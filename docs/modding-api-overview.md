@@ -39,14 +39,11 @@ for content that depends on values resolved at startup.
 
 ## `IContentRegistry` (`RegisterContent`)
 
-The content surface handed to `IContentMod.RegisterContent`. Same set of content
-registries as `IModContext` (minus the UI / lifecycle members):
-
-| Member | Typical use |
-|--------|-------------|
-| `AggroTuning` | Client-side tuning patches |
-| `Maps` | Map file redirects / aliases |
-| `Placeables` | Generated placeable crafting benches |
+The content surface handed to `IContentMod.RegisterContent`. It exposes the
+**same** content registries as `IModContext` (everything in the parity matrix
+below). There is no second “hidden” registry set — `ModLoadContext` forwards
+`IModContext` content properties to the same per-mod `IContentRegistry`
+instance used for `RegisterContent`.
 
 ## `.romod` parity matrix
 

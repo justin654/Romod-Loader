@@ -68,7 +68,6 @@ public sealed class LoaderDiagnostics
     public string ConfigPath { get; private set; } = "";
     public string LogPath { get; private set; } = "";
     public IReadOnlyList<string> DisabledModIds { get; private set; } = [];
-    public bool EnforceMultiplayerCompatibility { get; private set; }
     public IReadOnlyList<SkippedModInfo> SkippedMods => _skippedMods;
     public IReadOnlyList<FailedModInfo> FailedMods => _failedMods;
     public IReadOnlyList<ModLoadErrorInfo> Errors => _errors;
@@ -78,14 +77,11 @@ public sealed class LoaderDiagnostics
     public IReadOnlyList<PatchGroupInstallResult> PatchGroups => _patchGroups;
     public IReadOnlyList<ModCapabilityStatusInfo> CapabilityStates => _capabilityStates;
     public ModCompatibilityReport? LocalCompatibilityReport { get; private set; }
-    public ModCompatibilitySnapshot? LatestRemoteCompatibilitySnapshot { get; private set; }
-    public ModCompatibilityComparisonResult? LatestRemoteCompatibilityComparison { get; private set; }
 
-    public void SetConfig(string configPath, IReadOnlyList<string> disabledModIds, bool enforceMultiplayerCompatibility)
+    public void SetConfig(string configPath, IReadOnlyList<string> disabledModIds)
     {
         ConfigPath = configPath;
         DisabledModIds = disabledModIds;
-        EnforceMultiplayerCompatibility = enforceMultiplayerCompatibility;
     }
 
     public void SetDisabledModIds(IReadOnlyList<string> disabledModIds)
@@ -96,11 +92,6 @@ public sealed class LoaderDiagnostics
     public void SetLogPath(string logPath)
     {
         LogPath = logPath;
-    }
-
-    public void SetEnforceMultiplayerCompatibility(bool enforceMultiplayerCompatibility)
-    {
-        EnforceMultiplayerCompatibility = enforceMultiplayerCompatibility;
     }
 
     public void RegisterSkipped(SkippedModInfo mod)
@@ -166,22 +157,6 @@ public sealed class LoaderDiagnostics
     {
         ArgumentNullException.ThrowIfNull(report);
         LocalCompatibilityReport = report;
-    }
-
-    public void SetRemoteCompatibilityResult(
-        ModCompatibilitySnapshot snapshot,
-        ModCompatibilityComparisonResult comparison)
-    {
-        ArgumentNullException.ThrowIfNull(snapshot);
-        ArgumentNullException.ThrowIfNull(comparison);
-        LatestRemoteCompatibilitySnapshot = snapshot;
-        LatestRemoteCompatibilityComparison = comparison;
-    }
-
-    public void ClearRemoteCompatibilityResult()
-    {
-        LatestRemoteCompatibilitySnapshot = null;
-        LatestRemoteCompatibilityComparison = null;
     }
 }
 

@@ -19,9 +19,11 @@ folder.
 
 Two first-class mod formats coexist in the same `artifacts/mods/` folder:
 
-- **`.romod`** — A zip of TOML files plus assets. Data-only: items, recipes,
-  icons, stats, skills, skill effects, player classes, value overrides. No build step needed
-  beyond `romestead-mod pack`. Pick this when you only add content.
+- **`.romod`** — A zip of TOML files plus assets. Data-only: the same declarative
+  content surface as C# `IContentRegistry` (items, recipes, icons, stats, skills,
+  skill effects, player classes, value overrides, text, aggro tuning, crafting
+  stations, placeables, maps). No build step beyond `romestead-mod pack`. Pick
+  this when you only add content and do not need code.
 - **C# mod (`mods/<Name>/*.dll`)** — A compiled `IRomesteadMod` /
   `IContentMod`. Required for Harmony patches, scene hooks, custom UI,
   runtime API consumption, or any logic that needs to react at runtime.
@@ -68,11 +70,15 @@ format spec and quick start. For how the C# mod surface lines up with
   CLI packer / validator (`romestead-mod init|validate|pack`). Builds to
   `artifacts/romod-tool/romestead-mod.dll`. See
   [docs/romod-packages.md](docs/romod-packages.md) for the format spec.
-- `mods/Romestead.NewItemsMod`, `mods/Romestead.DeaggroMod`, `mods/Romestead.SkipIntroMod`
-  Sample / reference C# mods.
-- `romods/EmberPack`
-  Sample `.romod` package source. The build packs it to
-  `artifacts/mods/EmberPack.romod`.
+- `mods/Romestead.NewItemsMod`, `mods/Romestead.SkipIntroMod`, `mods/Romestead.IconDumpMod`
+  Sample / reference **C# mods** — kept for things `.romod` can't express:
+  custom UI + equipment (NewItemsMod), a Harmony scene patch (SkipIntroMod),
+  and a dev-only reflection/icon dumper (IconDumpMod).
+- `romods/EmberPack`, `romods/CalmBeastsPack`, `romods/MapTweaksPack`
+  Sample **`.romod` packages** (data-only, no compile). EmberPack is a full
+  item→station→placeable bench demo; CalmBeastsPack shows aggro tuning;
+  MapTweaksPack shows a map alias + file redirect. The build packs each to
+  `artifacts/mods/<name>.romod`.
 - `tests/Romestead.RomodFormat.Tests`
   xUnit tests for the package format (reader, validator, mapping).
 - `docs/`

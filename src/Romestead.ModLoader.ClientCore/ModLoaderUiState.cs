@@ -37,7 +37,7 @@ internal static class ModLoaderUiState
         return mods;
     }
 
-    public static void WriteLoaderConfig(IEnumerable<string> disabledModIds, bool enforceMultiplayerCompatibility)
+    public static void WriteLoaderConfig(IEnumerable<string> disabledModIds)
     {
         try
         {
@@ -52,12 +52,10 @@ internal static class ModLoaderUiState
                 JsonSerializer.Serialize(
                     new
                     {
-                        disabledMods = normalized,
-                        enforceMultiplayerCompatibility
+                        disabledMods = normalized
                     },
                     new JsonSerializerOptions { WriteIndented = true }));
             ModRegistries.Diagnostics.SetDisabledModIds(normalized);
-            ModRegistries.Diagnostics.SetEnforceMultiplayerCompatibility(enforceMultiplayerCompatibility);
             CoreState.Logger?.Info($"Updated mod config: {ModRegistries.Diagnostics.ConfigPath}");
         }
         catch (Exception ex)

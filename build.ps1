@@ -34,10 +34,7 @@ $romodsSource = Join-Path $root "romods"
 $managedModProjects = @(
     @{ Name = "Romestead.NewItemsMod"; Project = Join-Path $root "mods\Romestead.NewItemsMod\Romestead.NewItemsMod.csproj"; IncludeAssets = $true; IncludeMaps = $false; SkipOnServerOnly = $false },
     @{ Name = "Romestead.SkipIntroMod"; Project = Join-Path $root "mods\Romestead.SkipIntroMod\Romestead.SkipIntroMod.csproj"; IncludeAssets = $false; IncludeMaps = $false; SkipOnServerOnly = $true },
-    @{ Name = "Romestead.IconDumpMod"; Project = Join-Path $root "mods\Romestead.IconDumpMod\Romestead.IconDumpMod.csproj"; IncludeAssets = $false; IncludeMaps = $false; SkipOnServerOnly = $true },
-    @{ Name = "Romestead.DeaggroMod"; Project = Join-Path $root "mods\Romestead.DeaggroMod\Romestead.DeaggroMod.csproj"; IncludeAssets = $false; IncludeMaps = $false; SkipOnServerOnly = $false },
-    @{ Name = "Romestead.MapAliasTestMod"; Project = Join-Path $root "mods\Romestead.MapAliasTestMod\Romestead.MapAliasTestMod.csproj"; IncludeAssets = $false; IncludeMaps = $false; SkipOnServerOnly = $false },
-    @{ Name = "Romestead.MapFileRedirectTestMod"; Project = Join-Path $root "mods\Romestead.MapFileRedirectTestMod\Romestead.MapFileRedirectTestMod.csproj"; IncludeAssets = $false; IncludeMaps = $true; SkipOnServerOnly = $false }
+    @{ Name = "Romestead.IconDumpMod"; Project = Join-Path $root "mods\Romestead.IconDumpMod\Romestead.IconDumpMod.csproj"; IncludeAssets = $false; IncludeMaps = $false; SkipOnServerOnly = $true }
 )
 
 function Invoke-BuildProject {

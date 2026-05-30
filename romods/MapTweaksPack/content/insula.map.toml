@@ -1,13 +1,15 @@
-# Redirect the Insula interior's client-side geometry to a packaged .tmx.
-# Aliases and file redirects affect CLIENT geometry only; the server stays
-# authoritative for entities, loot, and containers.
+# Map tweaks affect CLIENT geometry only; the server stays authoritative for
+# entities, loot, and containers.
 
+# Alias: redirect one map id to another (no asset needed).
+[[aliases]]
+original = "maps/interiors_new/insula_2"
+replacement = "maps/dungeons/plains/plains_crypt_ruin"
+
+# File redirect: replace a map's client geometry with a packaged .tmx. The
+# .tmx's tileset/image references resolve against the game's content root, so
+# the package only needs to ship the map file itself.
 [[files]]
 mapId = "maps/interiors_new/insula_1"
 source = "assets/maps/insula_1.tmx"
 format = "Tmx"
-
-# Example alias (commented): point one map id at another vanilla map.
-# [[aliases]]
-# original = "maps/interiors_new/insula_2"
-# replacement = "maps/dungeons/plains/plains_crypt_ruin"

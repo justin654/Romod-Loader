@@ -975,7 +975,7 @@ internal static class PauseMenuWindowBuildUiPatch
                 return;
             }
 
-            foreach (var entry in ModUiSettingsHost.GetRegisteredSidebarEntries())
+            foreach (var entry in ModUiSettingsHost.BuildSidebarEntries())
             {
                 var button = CreateSidebarButton(entry, __instance.SettingsPanel);
                 listView.AddItem(button, false);

@@ -19,7 +19,6 @@ internal static class PlaceableServerDoodadBootstrap
     };
 
     private static readonly object Sync = new();
-    private static readonly HashSet<string> Injected = new(StringComparer.Ordinal);
 
     private static CandideReflection? _serverReflection;
     private static bool _reentry;
@@ -50,6 +49,19 @@ internal static class PlaceableServerDoodadBootstrap
         EnsureInjected("server-entity-world-load");
     }
 
+    [HarmonyPatch(typeof(EntitySController), "OnServerGameStateLoaded")]
+    [HarmonyPrefix]
+    private static void OnServerGameStateLoadedPrefix()
+    {
+        // EntitySController.OnServerGameStateLoaded reconstructs saved entities and
+        // DROPS any whose base id has no registered base data ("Could not find data
+        // for entity base id ... when loading game"). This runs before any world
+        // loads, so it is the earliest point our cloned bench base data must exist.
+        // Register here so the saved bench entity survives the load and comes back
+        // with its own WorldId — no decoration respawn or world-id cache required.
+        EnsureInjected("server-game-state-load");
+    }
+
     internal static void EnsureInjected(
         string reason,
         Guid? justLoadedTemplateGuid = null,
@@ -75,15 +87,11 @@ internal static class PlaceableServerDoodadBootstrap
         {
             foreach (var placeable in ModRegistries.Placeables.Pending)
             {
-                if (Injected.Contains(placeable.Id))
-                {
-                    continue;
-                }
-
                 var newGuid = placeable.DeriveDoodadGuid();
                 if (ServerEntityDataManager.TryGetEntityBaseData(newGuid, out _))
                 {
-                    Injected.Add(placeable.Id);
+                    // Already present in the manager (and not cleared by a world reset);
+                    // gating on the manager itself makes registration self-healing.
                     continue;
                 }
 
@@ -141,7 +149,6 @@ internal static class PlaceableServerDoodadBootstrap
                         templateGuid,
                         SharedContentBootstrap.Logger);
                     ServerEntityDataManager.SetBaseDoodadData(cloneBaseDoodad, cloneSystem);
-                    Injected.Add(placeable.Id);
 
                     SharedContentBootstrap.Logger?.Info(
                         $"[placeable-bootstrap] Registered server base data for '{placeable.Id}' from template '{placeable.Template}' during {reason}. base={newGuid} station={placeable.StationId}");
